@@ -8,14 +8,29 @@ Usage:
 Options: 
   -s, --status           Fetch the status of the agent.
   -p, --scopes           List allowed scopes
+  -n, --name STRING      Show config of specified name
   -h, --help             Display help and usage details
 
 Commands: 
-  check, login, logout
+  check, login, logout, show
 ```
 
 Need to log in from command line with `key` and `secret`.
 
+```bash
+skynet-config-agent login #Logs in
+```
+```bash
+skynet-config-agent logout #Logs out
+```
+```bash
+skynet-config-agent check #Show both status and scope
+skynet-config-agent check -p #Show scopes
+skynet-config-agent check -s #Show status
+```
+```bash
+skynet-config-agent show --n "mongo_url"
+```
 
 
 ### Use In App

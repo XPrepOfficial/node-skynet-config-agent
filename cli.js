@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 const cli = require('cli');
-const homedir = require('homedir');
-const {join} = require('path');
+const Auth = require('./auth');
 const {readFileSync, writeFileSync, stat, mkdir} = require('fs');
 
 // fetch args
@@ -20,7 +19,7 @@ new class CLI {
     }
 
     async dispatch() {
-        await this.delay(1000);
+        await this.delay(750);
         this.spinner('Initialized!', true);
         const commandsToRun = [];
         if (this.command === 'check' && this.options.status) {
@@ -43,36 +42,26 @@ new class CLI {
     }
 
     async loadConfig() {
-        const configBaseDir = join(homedir(), '.skynet');
+        const configBaseDir = Auth.getBaseDir();
         cli.info('Processing secure config. Loaded dir is: ' + configBaseDir);
         cli.progress(0.2);
         // ensure folder exist or create
         await this.ensureFolder(configBaseDir);
         cli.progress(0.4);
         // ensure sub folder exist or create
-        await this.ensureFolder(join(configBaseDir, 'auth'));
+        await this.ensureFolder(Auth.getAuthDir());
         cli.progress(0.6);
         // ensure config file exist
-        try {
-            this.configRaw = readFileSync(join(configBaseDir, 'auth', 'auth.crypt'));
-        } catch (c) {
-            this.configRaw = null;
-        }
+        this.configRaw = await Auth.getRawConfig();
         cli.progress(0.8);
         // parse existing file
-        await this.parseConfig();
+        this.config = await Auth.fetchAuthConfig();
         cli.progress(1);
         if (!this.config) cli.error('Not logged in yet.');
     }
 
     spinner(message, finished) {
         cli.spinner(message, finished);
-    }
-
-    async parseConfig() {
-        if (this.configRaw) {
-            // todo
-        }
     }
 
     async ensureFolder(path) {
@@ -91,9 +80,9 @@ new class CLI {
         const options = cli.parse({
             status: ['s', 'Fetch the status of the agent.'],
             scopes: ['p', 'List allowed scopes'],
-            // login: ['l', 'Login the agent', 'login', false],
+            name: ['n', 'Show config of specified name', 'string', false],
             // logout: [false, 'Logout the agent', 'logout', false]
-        }, ['login', 'logout', 'check']);
+        }, ['login', 'logout', 'check', 'show']);
 
         this.options = options;
         this.command = cli.command;
