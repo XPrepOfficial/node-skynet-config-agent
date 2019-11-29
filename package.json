@@ -1,0 +1,33 @@
+{
+  "name": "skynet-config-agent",
+  "version": "1.0.0",
+  "description": "Fetches configs from skynet server.",
+  "main": "agent.js",
+  "bin": {
+    "skynet-config-agent": "./cli.js"
+  },
+  "scripts": {
+    "test": "node test all"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XPrepOfficial/node-skynet-config-agent.git"
+  },
+  "keywords": [
+    "skynet",
+    "agent",
+    "config",
+    "skynet"
+  ],
+  "author": "KL",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/XPrepOfficial/node-skynet-config-agent/issues"
+  },
+  "homepage": "https://github.com/XPrepOfficial/node-skynet-config-agent#readme",
+  "dependencies": {
+    "cli": "^1.0.1",
+    "homedir": "^0.6.0",
+    "request-promise": "^4.2.5"
+  }
+}
