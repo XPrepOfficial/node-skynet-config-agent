@@ -1,4 +1,14 @@
 # Agent to fetch config from skynet
+Agent to load configs with security and permissions.
+
+## Install agent and configure
+Install the agent using following command and then login with your access credentials.
+
+You need to log in for the ode apps running to load configs.
+
+```bash
+npm i -g git@github.com:XPrepOfficial/node-skynet-config-agent.git --save
+```
 
 ### Command Line Opts:
 ```$xslt

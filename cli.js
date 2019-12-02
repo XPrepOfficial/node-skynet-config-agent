@@ -154,16 +154,16 @@ new class CLI {
         let configs;
         try {
             const userInfo = await Auth.fetchAuthTokenAndAuthUserInfo();
-            configs = await Config.fetchConfigs(userInfo.token, [this.options.name], userInfo.scopes);
+            configs = await Config.fetchConfigs(userInfo.token, [this.options.name], userInfo.scopes, userInfo.baseUrl);
         } catch (c) {
             cli.error(c.message);
             process.exit(1);
         }
         this.spinner('Config Fetched!', true);
         const table = new CliTable({
-            head: ['S.No', 'Key', 'Environment', 'Value']
+            head: ['S.No', 'Key', 'Environment', 'Type', 'Value']
         });
-        configs.forEach((config, i) => table.push([i + 1, config.name, config.environment, config.value]));
+        configs.forEach((config, i) => table.push([i + 1, config.name, config.environment, config.type, config.value]));
         console.log(table.toString());
         if (configs.length === 0) {
             cli.error('No config with provided name found. OR you do not have access to this config in allowed environments.');

@@ -91,9 +91,10 @@ exports = module.exports = class Auth {
             throw new Error('Unable to connect.');
         }
         return {
-            token: token,
-            scopes: scopes,
-            name
+            token,
+            scopes,
+            name,
+            baseUrl: authConfig.baseUrl
         }
     }
 

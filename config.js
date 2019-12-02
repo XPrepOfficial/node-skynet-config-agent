@@ -1,12 +1,23 @@
+const requestP = require('request-promise');
+
+const CONFIG_URL = '/api/v1/config/fetch';
+
 /**
  * Responsible to fetch config
  * */
 class Config {
 
-    static async fetchConfigs(token, configs, envs) {
-
-        // TODO
-        return [];
+    static async fetchConfigs(token, configs, envs, baseUrl) {
+        let props = await requestP({
+            url: baseUrl + CONFIG_URL,
+            json: {
+                env: envs.map(env => env.replace(/config:/i, '')),
+                keys: configs
+            }
+        });
+        if (props && props.success) {
+            return props.config;
+        } else throw new Error('Unable to fetch from config api!');
     }
 
 }
