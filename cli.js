@@ -37,7 +37,7 @@ new class CLI {
     }
 
     async dispatch() {
-        await this.delay(750);
+        await this.delay(500);
         this.spinner('Initialized!', true);
         const commandsToRun = [];
         if (this.command === 'check' && this.options.status) {
