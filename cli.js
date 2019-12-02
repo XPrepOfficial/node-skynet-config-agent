@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 const cli = require('cli');
 const Auth = require('./auth');
+const Config = require('./config');
 const {readFileSync, writeFileSync, stat, mkdir} = require('fs');
+const CliTable = require('cli-table3');
 
 // fetch args
 const [, , ...args] = process.argv;
@@ -12,7 +14,7 @@ const [, , ...args] = process.argv;
 new class CLI {
 
     constructor() {
-        console.log('[PARAMS]', args);
+        if (process.env.DEBUG === 'true') console.log('[PARAMS]', args);
         this.parseClIArgs();
         this.spinner('Initializing...');
         this.dispatch().then(() => cli.ok('Skynet Agent Management Utility Is Now Exiting!'))
@@ -81,6 +83,9 @@ new class CLI {
             status: ['s', 'Fetch the status of the agent.'],
             scopes: ['p', 'List allowed scopes'],
             name: ['n', 'Show config of specified name', 'string', false],
+            key: [false, 'Specify API Key', 'string', false],
+            secret: [false, 'Specify API Secret', 'string', false],
+            skynetUrl: [false, 'Skynet Base Url.', 'string', "https://skynet.classplusapp.com"],
             // logout: [false, 'Logout the agent', 'logout', false]
         }, ['login', 'logout', 'check', 'show']);
 
@@ -96,22 +101,78 @@ new class CLI {
 
     async checkStatus() {
         cli.info('Running Command checkStatus.');
-
+        this.spinner('Authenticating Credentials...');
+        const [success, baseUrl] = await Auth.testConnection(this.options.key, this.options.secret, this.options.skynetUrl);
+        this.spinner("Auth Check Completed", true);
+        if (success) {
+            cli.ok("Connection is active and working fine.");
+        } else {
+            cli.error('Unable to connect with provided credentials.');
+            process.exit(1);
+        }
     }
 
     async checkScopes() {
         cli.info('Running Command checkScopes.');
+        this.spinner('Fetching User Details...');
+        const userInfo = await Auth.fetchAuthTokenAndAuthUserInfo();
+        this.spinner('User fetched!', true);
+        const table = new CliTable({
+            head: ['S.No', 'Authorized Environment']
+        });
+        userInfo.scopes.forEach((scope, idx) => table.push([idx + 1, scope]));
+        console.log(table.toString());
+    }
 
+    async show() {
+        cli.info('Running Command show config.');
+        if (!this.options.name) {
+            cli.error('Please provice config key to pull up.');
+            process.exit(1);
+        }
+        cli.info(`Looking up '${this.options.name}'`);
+        this.spinner('Fetching Config...');
+        const userInfo = await Auth.fetchAuthTokenAndAuthUserInfo();
+        const configs = await Config.fetchConfigs(userInfo.token, [this.options.name], userInfo.scopes);
+        this.spinner('Config Fetched!', true);
+        const table = new CliTable({
+            head: ['S.No', 'Key', 'Environment', 'Value']
+        });
+        configs.forEach((config, i) => table.push([i + 1, config.name, config.environment, config.value]));
+        console.log(table.toString());
+        if (configs.length === 0) {
+            cli.error('No config with provided name found. OR you do not have access to this config in allowed environments.');
+        }
     }
 
     async login() {
         cli.info('Running Command login.');
-
+        if (!this.options.key) {
+            cli.error('Please provide API key');
+            process.exit(1);
+        }
+        if (!this.options.secret) {
+            cli.error('Please provide API Secret');
+            process.exit(1);
+        }
+        this.spinner('Authenticating Credentials...');
+        const [success, baseUrl] = await Auth.testConnection(this.options.key, this.options.secret, this.options.skynetUrl);
+        this.spinner("Auth Check Completed", true);
+        if (success) await Auth.saveAuthFile(this.options.key, this.options.secret, baseUrl);
+        else {
+            cli.error('Unable to connect with provided credentials.');
+            process.exit(1);
+        }
     }
 
     async logout() {
         cli.info('Running Command logout.');
-
+        try {
+            await Auth.logout();
+            cli.ok("Logged Out!");
+        } catch (c) {
+            cli.error('Not Logged in yet.');
+        }
     }
 
 

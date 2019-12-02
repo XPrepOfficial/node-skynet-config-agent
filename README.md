@@ -9,6 +9,9 @@ Options:
   -s, --status           Fetch the status of the agent.
   -p, --scopes           List allowed scopes
   -n, --name STRING      Show config of specified name
+      --key STRING       Specify API Key
+      --secret STRING    Specify API Secret
+      --skynetUrl [STRING]Skynet Base Url. (Default is https://skynet.classplusapp.com)
   -h, --help             Display help and usage details
 
 Commands: 
@@ -18,7 +21,7 @@ Commands:
 Need to log in from command line with `key` and `secret`.
 
 ```bash
-skynet-config-agent login #Logs in
+skynet-config-agent login --key "key here" --secret "secret here" #Logs in
 ```
 ```bash
 skynet-config-agent logout #Logs out
