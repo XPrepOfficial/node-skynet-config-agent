@@ -7,7 +7,7 @@ Install the agent using following command and then login with your access creden
 You need to log in for the ode apps running to load configs.
 
 ```bash
-npm i -g git@github.com:XPrepOfficial/node-skynet-config-agent.git --save
+npm i -g git@github.com:XPrepOfficial/node-skynet-config-agent.git
 ```
 
 ### Command Line Opts:
