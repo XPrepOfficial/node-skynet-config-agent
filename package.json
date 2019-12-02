@@ -26,10 +26,12 @@
   },
   "homepage": "https://github.com/XPrepOfficial/node-skynet-config-agent#readme",
   "dependencies": {
+    "cfonts": "^2.4.5",
     "cli": "^1.0.1",
     "cli-table3": "^0.5.1",
     "colors": "^1.4.0",
     "homedir": "^0.6.0",
+    "request": "^2.88.0",
     "request-promise": "^4.2.5"
   }
 }

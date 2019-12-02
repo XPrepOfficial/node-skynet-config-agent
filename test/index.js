@@ -1,7 +1,5 @@
-const {readFileSync, writeFileSync} = require('fs');
-const {join} = require('path');
-const DailyUserStatsService = require('../src/node/service-command-center/services/DailyUserStatService');
-const creds = require('./creds');
+const crypto = require('crypto');
+const requestP = require('request-promise');
 
 /**
  * The test runner class.
@@ -19,13 +17,39 @@ class Test {
         return true;
     }
 
-    async dailyStatsService() {
-        // creds to use for Testing:
-        const {host, user, database, password, port, conLimit, mongoDBName, mongoUrl} = creds;
-        const dailyUserStatsService = new DailyUserStatsService(18, 11, 2019, host, user, database, password, mongoUrl, mongoDBName, port, conLimit);
-        await dailyUserStatsService.init();
-        const result = await dailyUserStatsService.computeAll();
-        console.log(result);
+    // command to run
+    // node test auth <key> <secret>
+    async auth([key, secret]) {
+
+        const url = 'https://skynet.classplusapp.com/oauth2/v1/token';
+
+        const date = new Date();
+        const grantType = 'config:agent';
+        const seconds = 3600;
+
+        const checkStr = `${grantType}:${key}:${seconds}:${+date}:${secret}`;
+        console.log(checkStr);
+
+        const hmac = crypto.createHmac('sha256', secret);
+        hmac.update(checkStr);
+        const assertion = hmac.digest('hex');
+        console.log(assertion);
+
+        let result = await requestP({
+            url: url,
+            method: 'post',
+            json: {
+                grant_type: grantType,
+                api_key: key,
+                grant_seconds: seconds,
+                ts: +date,
+                assertion: assertion
+            }
+        });
+
+        console.log(result)
+
+
     }
 
 }

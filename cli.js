@@ -4,6 +4,8 @@ const Auth = require('./auth');
 const Config = require('./config');
 const {readFileSync, writeFileSync, stat, mkdir} = require('fs');
 const CliTable = require('cli-table3');
+const CFonts = require('cfonts');
+require('colors');
 
 // fetch args
 const [, , ...args] = process.argv;
@@ -16,8 +18,22 @@ new class CLI {
     constructor() {
         if (process.env.DEBUG === 'true') console.log('[PARAMS]', args);
         this.parseClIArgs();
+        this.emblem();
         this.spinner('Initializing...');
         this.dispatch().then(() => cli.ok('Skynet Agent Management Utility Is Now Exiting!'))
+    }
+
+    emblem() {
+        CFonts.say('Config Agent', {
+            font: 'block',              // define the font face
+            align: 'left',              // define text alignment
+            colors: ['green'],         // define all colors
+            background: 'transparent',  // define the background color, you can also use `backgroundColor` here as key
+            letterSpacing: 1,           // define letter spacing
+            lineHeight: 1,              // define the line height
+            space: true,                // define if the output text should have empty lines on top and on the bottom
+            maxLength: '0',             // define how many character can be on one line
+        });
     }
 
     async dispatch() {
@@ -102,11 +118,13 @@ new class CLI {
     async checkStatus() {
         cli.info('Running Command checkStatus.');
         this.spinner('Authenticating Credentials...');
-        const [success, baseUrl] = await Auth.testConnection(this.options.key, this.options.secret, this.options.skynetUrl);
-        this.spinner("Auth Check Completed", true);
-        if (success) {
+        try {
+            const userInfo = await Auth.fetchAuthTokenAndAuthUserInfo();
+            this.spinner("Auth Check Completed", true);
+            console.log('Logged In With Client:'.bold.yellow, userInfo.name);
             cli.ok("Connection is active and working fine.");
-        } else {
+        } catch (c) {
+            this.spinner(c.message, true);
             cli.error('Unable to connect with provided credentials.');
             process.exit(1);
         }
@@ -117,6 +135,7 @@ new class CLI {
         this.spinner('Fetching User Details...');
         const userInfo = await Auth.fetchAuthTokenAndAuthUserInfo();
         this.spinner('User fetched!', true);
+        console.log('Logged In With Client:'.bold.yellow, userInfo.name);
         const table = new CliTable({
             head: ['S.No', 'Authorized Environment']
         });
@@ -132,8 +151,14 @@ new class CLI {
         }
         cli.info(`Looking up '${this.options.name}'`);
         this.spinner('Fetching Config...');
-        const userInfo = await Auth.fetchAuthTokenAndAuthUserInfo();
-        const configs = await Config.fetchConfigs(userInfo.token, [this.options.name], userInfo.scopes);
+        let configs;
+        try {
+            const userInfo = await Auth.fetchAuthTokenAndAuthUserInfo();
+            configs = await Config.fetchConfigs(userInfo.token, [this.options.name], userInfo.scopes);
+        } catch (c) {
+            cli.error(c.message);
+            process.exit(1);
+        }
         this.spinner('Config Fetched!', true);
         const table = new CliTable({
             head: ['S.No', 'Key', 'Environment', 'Value']
