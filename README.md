@@ -7,7 +7,7 @@ Install the agent using following command and then login with your access creden
 You need to log in for the ode apps running to load configs.
 
 ```bash
-npm i -g git@github.com:XPrepOfficial/node-skynet-config-agent.git
+npm i -g ssh:git@github.com:XPrepOfficial/node-skynet-config-agent.git
 ```
 
 ### Command Line Opts:
@@ -50,7 +50,7 @@ skynet-config-agent show --n "mongo_url"
 To use in app install the `npm module` and it will automatically fetch config as desired.
 
 ```bash
-npm i git@github.com:XPrepOfficial/node-skynet-config-agent.git --save
+npm i ssh:git@github.com:XPrepOfficial/node-skynet-config-agent.git --save
 ```
 
 In the main file yo can use the agent as below:
