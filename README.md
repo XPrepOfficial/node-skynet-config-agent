@@ -56,10 +56,10 @@ npm i ssh:git@github.com:XPrepOfficial/node-skynet-config-agent.git --save
 In the main file yo can use the agent as below:
 
 ```javascript
-const skynetConfigAgent = require("skynet-config-agent");
+const SkynetConfigAgent = require("skynet-config-agent");
 
 // returns promise, hence can do await
-await skynetConfigAgent.load({
+await SkynetConfigAgent.load({
     localOnly: false, // if true will only load default values, not go to skynet. To work offline, or dev.
     env: process.env.NODE_ENV, // or some other value as env. REMEMBER you will be ONLY able to fetch config of granted envs. ex: if your token is only granted development,staging access you can never load production configs.
     map:{ // can load from JSON file aswell
