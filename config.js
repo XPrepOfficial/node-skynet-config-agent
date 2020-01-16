@@ -9,7 +9,11 @@ class Config {
 
     static async fetchConfigs(token, configs, envs, baseUrl) {
         let props = await requestP({
+            method: 'post',
             url: baseUrl + CONFIG_URL,
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
             json: {
                 env: envs.map(env => env.replace(/config:/i, '')),
                 keys: configs
